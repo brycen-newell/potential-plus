@@ -1,1 +1,34 @@
+# .github/workflows/cicd-pipeline.yml
 
+name: Multi-Stage Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # job 1 - Build Image
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tages: ${{ secrets.DOCKERHUB_USERNAME }}/my-homepage:latest
+
+  # job 2 - Deploy to Dev  // TODO
