@@ -10,6 +10,7 @@ variable "ssh_key_name" {
   default     = "deployer-key"
 }
 
+# required at Terraform apply
 variable "ssh_public_key" {
   description = "The public key to be used for SSH access."
   type        = string
