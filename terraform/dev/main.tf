@@ -100,3 +100,8 @@ resource "aws_instance" "web_server_dev" {
 }
 
 # --- ANSIBLE --- #
+
+resource "local_file" "ansible_inventory_dev" {
+  content  = "[webservers]\n${aws_instance.web_server_dev.public_ip} ansible_user=ec2-user"
+  filename = "${path.root}/../../ansible/inventory/dev.ini 
+}
