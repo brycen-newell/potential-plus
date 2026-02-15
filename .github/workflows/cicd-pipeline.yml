@@ -54,7 +54,7 @@ jobs:
         id: apply
         working-directory: ./terraform/dev
         run: |
-          terrafom init
+          terraform init
           terraform apply -auto-approve \
             -var="runner_ip=${{ steps.runner_ip.outputs.ip }}" \
             -var="ssh_public_key=${{ secrets.AWS_SSH_PUBLIC_KEY }}"
