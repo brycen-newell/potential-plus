@@ -29,6 +29,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tages: ${{ secrets.DOCKERHUB_USERNAME }}/my-homepage:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-homepage:latest
 
   # job 2 - Deploy to Dev  // TODO
