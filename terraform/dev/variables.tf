@@ -13,6 +13,9 @@ variable "ssh_key_name" {
 variable "ssh_public_key" {
   description = "The public key to be used for SSH access."
   type        = string
-  
+}
 
+variable "runner_ip" {
+  description = "The public IP of the GitHub Actions runner."
+  type        = string
 }
