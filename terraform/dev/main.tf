@@ -49,7 +49,7 @@ resource "aws_route_table_association" "a" {
 resource "aws_security_group" "web_sg" {
   name         = "web-server-sg"
   description  = "Allow SSH and HTTP traffic"
-  vpc_id       = "aws_vpc.dev_vpc.id"
+  vpc_id       = aws_vpc.dev_vpc.id
 
   # ingress SSH open for Ansible
   ingress {
@@ -90,9 +90,9 @@ resource "aws_key_pair" "deployer" {
 resource "aws_instance" "web_server_dev" {
   ami                    = "ami-05efc83cb5512477c" # Amazon Linux 2 AMI for us-east-2 
   instance_type          = "t3.micro"
-  subnet_id              = "aws_subnet.dev_subnet.id"
+  subnet_id              = aws_subnet.dev_subnet.id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-  key_name               = "aws_key_pair.deployer.key_name"
+  key_name               = aws_key_pair.deployer.key_name
 
   tags = {
     Name = "dev-web-server"
