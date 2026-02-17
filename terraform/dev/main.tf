@@ -51,23 +51,22 @@ resource "aws_security_group" "web_sg" {
   description  = "Allow SSH and HTTP traffic"
   vpc_id       = aws_vpc.dev_vpc.id
 
-  # ingress SSH open for Ansible
   ingress {
+    description = "Allow SSH traffic from GitHub runner for Ansible"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["${var.runner_ip}/32"]
   }
 
-  # ingress HTTP open for anywhere access
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description      = "Allow HTTP traffic from the Load Balancer"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    security_groups  = [aws_security_group.lb_sg.id]
   }
 
-  # egress open for outgoing traffic
   egress {
     from_port   = 0
     to_port     = 0
