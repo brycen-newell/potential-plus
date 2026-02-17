@@ -70,3 +70,22 @@ resource "aws_lb_target_group_attachment" "attachement" {
   port             = 80
 
 }
+
+
+# --- DNS --- #
+
+data "aws_route53_zone" "my_domain" {
+  name = "cbcnet.io" # TODO // DNS domain purchase
+}
+
+resource "aws_route53_record" "dev_app" {
+  zone_id = data.aws_route53_zone.my_domain.zone_id
+  name    = "dev.${data.aws_route53_zone.my_domain.name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.dev_alb.dns_name
+    zone_id                = aws_lb.dev_alb.zone_id
+    evaluate_target_health = true
+  }
+}
