@@ -78,3 +78,5 @@ jobs:
             --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
           
           rm /tmp/ssh_key.pem
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
