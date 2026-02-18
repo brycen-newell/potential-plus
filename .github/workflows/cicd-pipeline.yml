@@ -68,7 +68,7 @@ jobs:
           echo "Waiting for SSH to be available..."
           sleep 30
 
-          printf "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
+          printf -- "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
           
           
