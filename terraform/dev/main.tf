@@ -101,11 +101,26 @@ resource "aws_instance" "web_server_dev"{
   }
 }
 
+resource "aws_instance" "monitoring_server" {
+  count                   = var.deploy_monitoring_server ? 1 : 0
+  ami                     = "ami-0c55b159cbfafe1f0" 
+  instance_type           = "t2.micro"
+
+  subnet_id               = aws_subnet.dev_subnet.id
+  vpc_security_group_ids  = [aws_security_group.web_sg.id]
+  key_name                = aws_key_pair.deployer.key_name
+
+  tags = {
+    Name = "dev-web-server-${count.index}
+  }
+}
+
 # --- ANSIBLE --- #
 
 resource "local_file" "ansible_inventory_dev" {
   content = templatefile("${path.module}/inventory.tpl", {
-    webservers        = aws_instance.web_server_dev
+    webservers             = aws_instance.web_server_dev
+    monitoring_servers     = aws_instance.monitoring_server
   })
   filename = "${path.root}/../../ansible/inventory/dev.ini"
 }

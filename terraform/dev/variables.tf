@@ -20,3 +20,9 @@ variable "runner_ip" {
   description = "The public IP of the GitHub Actions runner."
   type        = string
 }
+
+variable "deploy_monitoring_server" {
+  description = "If true, deploys the monitoring server."
+  type        = bool
+  default     = false
+}

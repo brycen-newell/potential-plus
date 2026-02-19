@@ -1,9 +1,15 @@
-output "dev_server_ip" {
-  value       = aws_instance.web_server_dev[*].public_ip
-  description = "The public IP address of the dev web server."
-}
 
-output "dev_server_id" {
-  value       = aws_instance.web_server_dev[*].id
-  description = "The ID of the dev web server instance."
+output "instance_details" {
+  description = "A map of all created instances, keyed by their name tag, with their details."
+  sensitive   = true
+
+  value = {
+    for instance in concat(aws_instance.web_server_dev, aws_instance.monitoring_server) :
+    
+    instance.tags.Name => {
+      public_ip   = instance.public_ip
+      instance_id = instance.id
+      private_ip  = instance.private_ip
+    }
+  }
 }
