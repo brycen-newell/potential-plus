@@ -88,7 +88,8 @@ resource "aws_key_pair" "deployer" {
 
 # --- COMPUTE --- #
 
-resource "aws_instance" "web_server_dev" {
+resource "aws_instance" "web_server_dev"{
+  count                  = 1
   ami                    = "ami-05efc83cb5512477c" # Amazon Linux 2 AMI for us-east-2 
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.dev_subnet.id
@@ -103,6 +104,8 @@ resource "aws_instance" "web_server_dev" {
 # --- ANSIBLE --- #
 
 resource "local_file" "ansible_inventory_dev" {
-  content  = "[webservers]\n${aws_instance.web_server_dev.public_ip} ansible_user=ec2-user"
+  content = templatefile("${path.module}/inventory.tpl", {
+    webservers        = aws_instance.web_server_dev
+  })
   filename = "${path.root}/../../ansible/inventory/dev.ini"
 }
