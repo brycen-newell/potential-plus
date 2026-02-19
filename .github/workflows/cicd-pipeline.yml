@@ -68,9 +68,15 @@ jobs:
           echo "Waiting for SSH to be available..."
           sleep 30
 
+          printf -- "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
+          chmod 600 /tmp/ssh_key.pem
+          
+          
           ansible-playbook -i inventory/dev.ini playbook.yml \
             --user ec2-user \
-            --private-key ${{ secrets.AWS_SSH_PRIVATE_KEY }} \
+            --private-key /tmp/ssh_key.pem \
             --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
-        
-        
+          
+          rm /tmp/ssh_key.pem
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
