@@ -111,7 +111,7 @@ resource "aws_instance" "monitoring_server" {
   key_name                = aws_key_pair.deployer.key_name
 
   tags = {
-    Name = "dev-web-server-${count.index}
+    Name = "dev-web-server-${count.index}"
   }
 }
 
