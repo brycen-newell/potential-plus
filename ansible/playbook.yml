@@ -25,6 +25,10 @@
         name: ec2-user
         groups: docker
         append: yes
+    
+    # Fix to the Issue with Docker permissions not taking place on first pipeline run
+    - name: Reset SSH connection to apply group changes
+      meta: reset_connection
 
     - name: Pull the latest app image from Docker Hub
       community.docker.docker_image:
