@@ -97,7 +97,7 @@ resource "aws_instance" "web_server_dev"{
   key_name               = aws_key_pair.deployer.key_name
 
   tags = {
-    Name = "dev-web-server"
+    Name = "dev-web-server-${count.index}"
   }
 }
 
