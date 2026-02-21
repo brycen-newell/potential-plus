@@ -65,18 +65,26 @@ jobs:
       - name: Run Ansible Playbook
         working-directory: ./ansible
         run: |
-          echo "Waiting for SSH to be available..."
-          sleep 30
 
           printf -- "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
           
+          echo "Waiting for SSH on Bastion..."
+          sleep 30
+          
+          PROXY_COMMAND="-o ProxyCommand='ssh -W %h:%p -q  -i /tmp/ssh_key.pem ec2-user@BASTION_IP'"
+                 
           
           ansible-playbook -i inventory/dev.ini playbook.yml \
             --user ec2-user \
             --private-key /tmp/ssh_key.pem \
+            --extra-vars "ansible_ssh_common_args='$PROXY_COMMAND'" \
             --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
           
           rm /tmp/ssh_key.pem
         env:
+          BASTION_IP: ${{ steps.apply.outputs.bastion_public_ip }}
           ANSIBLE_HOST_KEY_CHECKING: False
+          
+  
+         
