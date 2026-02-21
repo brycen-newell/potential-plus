@@ -21,3 +21,26 @@ body {
 h1 {
     color: #0056b3;
 }
+
+.hostname-box {
+    margin-top: 30px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.hostname-box p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #555
+}
+
+.hostname-box h2 {
+    margin: 5px 0 0 0;
+    font-family: 'Courier New', Courier, monospace;
+    color: #d9534f;
+    font-size: 1.4em;
+}
+
+
