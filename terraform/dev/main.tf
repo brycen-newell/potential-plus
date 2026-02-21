@@ -152,7 +152,7 @@ resource "aws_instance" "web_server_dev"{
   count                  = 1
   ami                    = "ami-05efc83cb5512477c" # Amazon Linux 2 AMI for us-east-2 
   instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.dev_public_subnet.id
+  subnet_id              = aws_subnet.dev_private_subnet.id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   key_name               = aws_key_pair.deployer.key_name
 
