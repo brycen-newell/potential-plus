@@ -121,7 +121,7 @@ resource "aws_security_group" "web_sg" {
 
 resource "aws_security_group" "bastion_sg" {
   name          = "bastion-sg"
-  vpc_id        = "aws_vpc.dev_vpc.id
+  vpc_id        = aws_vpc.dev_vpc.id
 
   ingress {
     from_port   = 22
