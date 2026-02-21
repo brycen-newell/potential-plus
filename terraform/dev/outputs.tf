@@ -1,4 +1,7 @@
-
+output "bastion_public_ip" {
+  description = "the public IP of the Bastion Host"
+  value       = aws_instance.bastion.public_ip
+}
 output "instance_details" {
   description = "A map of all created instances, keyed by their name tag, with their details."
   sensitive   = true
