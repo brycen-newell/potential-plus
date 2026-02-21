@@ -75,7 +75,7 @@ resource "aws_lb_target_group_attachment" "attachement" {
 # --- DNS --- #
 
 data "aws_route53_zone" "my_domain" {
-  name = "cbcnet.io" # TODO // DNS domain purchase
+  name = "cbcnet.me" 
 }
 
 resource "aws_route53_record" "dev_app" {
