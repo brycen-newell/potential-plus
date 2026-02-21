@@ -87,7 +87,8 @@ resource "aws_key_pair" "deployer" {
 
 # --- COMPUTE --- #
 
-resource "aws_instance" "web_server_dev" {
+resource "aws_instance" "web_server_dev"{
+  count                  = 1
   ami                    = "ami-05efc83cb5512477c" # Amazon Linux 2 AMI for us-east-2 
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.dev_subnet.id
@@ -95,13 +96,30 @@ resource "aws_instance" "web_server_dev" {
   key_name               = aws_key_pair.deployer.key_name
 
   tags = {
-    Name = "dev-web-server"
+    Name = "dev-web-server-${count.index}"
+  }
+}
+
+resource "aws_instance" "monitoring_server" {
+  count                   = var.deploy_monitoring_server ? 1 : 0
+  ami                     = "ami-0c55b159cbfafe1f0" 
+  instance_type           = "t2.micro"
+
+  subnet_id               = aws_subnet.dev_subnet.id
+  vpc_security_group_ids  = [aws_security_group.web_sg.id]
+  key_name                = aws_key_pair.deployer.key_name
+
+  tags = {
+    Name = "dev-web-server-${count.index}"
   }
 }
 
 # --- ANSIBLE --- #
 
 resource "local_file" "ansible_inventory_dev" {
-  content  = "[webservers]\n${aws_instance.web_server_dev.public_ip} ansible_user=ec2-user"
+  content = templatefile("${path.module}/inventory.tpl", {
+    webservers             = aws_instance.web_server_dev
+    monitoring_servers     = aws_instance.monitoring_server
+  })
   filename = "${path.root}/../../ansible/inventory/dev.ini"
 }
