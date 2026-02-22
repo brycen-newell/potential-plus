@@ -28,7 +28,7 @@ resource "aws_lb" "dev_alb" {
   internal            = false
   load_balancer_type  = "application"
   security_groups     = [aws_security_group.lb_sg.id]
-  subnets             = [aws_subnet.dev_subnet.id]
+  subnets             = [aws_subnet.dev_public_subnet.id]
 
   tags = {
     Name        = "dev_alb"
@@ -38,7 +38,7 @@ resource "aws_lb" "dev_alb" {
 resource "aws_lb_target_group" "dev_tg" {
   name                = "dev-app-tg"
   port                = 80
-  protocol            = "tcp"
+  protocol            = "TCP"
   vpc_id              = aws_vpc.dev_vpc.id
 
   health_check {
