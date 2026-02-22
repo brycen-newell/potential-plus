@@ -31,7 +31,7 @@ resource "aws_subnet" "dev_public_subnet" {
 }
 
 resource "aws_eip" "nat_eip" {
-  vpc = true
+  domain            = "vpc"
   tags = {
     Name = "dev-nat-eip"
   }
