@@ -65,6 +65,7 @@ resource "aws_lb_listener" "https_listener" {
 }
 
 resource "aws_lb_target_group_attachment" "attachment" {
+  count = length(aws_instance.web_server_dev)
   target_group_arn = aws_lb_target_group.dev_tg.arn
   target_id        = aws_instance.web_server_dev[count.index].id
   port             = 80
