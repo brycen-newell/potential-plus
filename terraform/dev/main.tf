@@ -30,6 +30,16 @@ resource "aws_subnet" "dev_public_subnet" {
   }
 }
 
+resource "aws_subnet" "dev_public_subnet_2" {
+  vpc_id            = aws_vpc.dev_vpc.vpc_id
+  cidr_block        = "10.0.3.0/24"
+  availability_zone = "${var.aws_region}b"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "dev_public_subnet_2"
+  }
+}
+
 resource "aws_eip" "nat_eip" {
   domain            = "vpc"
   tags = {
@@ -79,6 +89,12 @@ resource "aws_route_table" "public_route_table" {
 resource "aws_route_table_association" "public_assoc" {
   subnet_id    = aws_subnet.dev_public_subnet.id
   route_table_id = aws_route_table.public_route_table.id
+}
+
+resource "aws_route_table_association" "public_assoc_2" {
+  subnet_id       = aws_subnet.dev_public_subnet_2.id 
+  route_table_id  = aws_route_table.public_route_table.id 
+
 }
 
 resource "aws_route_table_association" "private_assoc" {

@@ -28,8 +28,10 @@ resource "aws_lb" "dev_alb" {
   internal            = false
   load_balancer_type  = "application"
   security_groups     = [aws_security_group.lb_sg.id]
-  subnets             = [aws_subnet.dev_public_subnet.id]
-
+  subnets             = [
+      aws_subnet.dev_public_subnet.id 
+      aws_subnet.dev_public_subnet_2.id 
+    ]
   tags = {
     Name        = "dev_alb"
   }
