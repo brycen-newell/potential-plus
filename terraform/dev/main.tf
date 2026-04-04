@@ -31,7 +31,7 @@ resource "aws_subnet" "dev_public_subnet" {
 }
 
 resource "aws_subnet" "dev_public_subnet_2" {
-  vpc_id            = aws_vpc.dev_vpc.vpc_id
+  vpc_id            = aws_vpc.dev_vpc.id
   cidr_block        = "10.0.3.0/24"
   availability_zone = "${var.aws_region}b"
   map_public_ip_on_launch = true
