@@ -55,6 +55,7 @@ jobs:
         id: bastion
         working-directory: ./terraform/dev
         run: |
+          terraform init
           echo "Running terraform output..."
           terraform output -raw bastion_public_ip
           EXIT_CODE=$?
