@@ -57,11 +57,29 @@ jobs:
           chmod 600 /tmp/ssh_key.pem
 
           # Get bastion IP from Terraform output
-          BASTION_IP=$(cd ../terraform/dev && terraform output -raw bastion_public_ip)
-
+          cd ../terraform/dev
+          BASTION_IP=$(terraform output -raw bastion_public_ip 2>&1)
           echo "Bastion IP: $BASTION_IP"
+
+          if [ -z "$BASTION_IP" ]; then
+            echo "ERROR: Could not retrieve bastion IP from Terraform output"
+            exit 1
+          fi
+
+          cd ../../ansible
+
           echo "Waiting for SSH on Bastion..."
           sleep 30
+
+          # Test bastion SSH connectivity before running Ansible
+          echo "Testing bastion SSH..."
+          ssh -i /tmp/ssh_key.pem \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=10 \
+            ec2-user@$BASTION_IP "echo 'Bastion SSH OK'" || {
+              echo "ERROR: Cannot SSH to bastion at $BASTION_IP"
+              exit 1
+            }
 
           # Write SSH config for ProxyJump
           mkdir -p ~/.ssh
@@ -83,10 +101,12 @@ jobs:
           ansible-playbook -i inventory/dev.ini playbook.yml \
             --user ec2-user \
             --private-key /tmp/ssh_key.pem \
-            --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
+            --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" \
+            -vv
 
           rm /tmp/ssh_key.pem
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
           ANSIBLE_HOST_KEY_CHECKING: "False"
