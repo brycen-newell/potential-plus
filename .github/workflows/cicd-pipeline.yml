@@ -50,41 +50,43 @@ jobs:
         with:
           terraform_version: 1.2.0
 
-      - name: Terraform Apply (Builds Infra & Creates Inventory)
-        id: apply
-        working-directory: ./terraform/dev
-        run: |
-          terraform init
-          terraform apply -auto-approve \
-            -var="runner_ip=${{ steps.runner_ip.outputs.ip }}" \
-            -var="ssh_public_key=${{ secrets.AWS_SSH_PUBLIC_KEY }}"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       - name: Run Ansible Playbook
         working-directory: ./ansible
         run: |
-
           printf -- "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
-          
+
+          # Get bastion IP from Terraform output
+          BASTION_IP=$(cd ../terraform/dev && terraform output -raw bastion_public_ip)
+
+          echo "Bastion IP: $BASTION_IP"
           echo "Waiting for SSH on Bastion..."
           sleep 30
-          
-          PROXY_COMMAND="-o ProxyCommand='ssh -W %h:%p -q  -i /tmp/ssh_key.pem ec2-user@BASTION_IP'"
-                 
-          
+
+          # Write SSH config for ProxyJump
+          mkdir -p ~/.ssh
+          cat > ~/.ssh/config << EOF
+          Host bastion
+            HostName $BASTION_IP
+            User ec2-user
+            IdentityFile /tmp/ssh_key.pem
+            StrictHostKeyChecking no
+
+          Host 10.0.*.*
+            User ec2-user
+            IdentityFile /tmp/ssh_key.pem
+            ProxyJump bastion
+            StrictHostKeyChecking no
+          EOF
+          chmod 600 ~/.ssh/config
+
           ansible-playbook -i inventory/dev.ini playbook.yml \
             --user ec2-user \
             --private-key /tmp/ssh_key.pem \
-            --extra-vars "ansible_ssh_common_args='$PROXY_COMMAND'" \
             --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
-          
+
           rm /tmp/ssh_key.pem
         env:
-          BASTION_IP: ${{ steps.apply.outputs.bastion_public_ip }}
-          ANSIBLE_HOST_KEY_CHECKING: False
-          
-  
-         
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ANSIBLE_HOST_KEY_CHECKING: "False"
