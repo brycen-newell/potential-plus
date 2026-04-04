@@ -50,28 +50,29 @@ jobs:
         with:
           terraform_version: 1.2.0
 
+
+      - name: Get Bastion IP
+        id: bastion
+        working-directory: ./terraform/dev
+        run: |
+          echo "bastion_ip=$(terraform output -raw bastion_public_ip)" >> $GITHUB_OUTPUT
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
+
       - name: Run Ansible Playbook
         working-directory: ./ansible
         run: |
           printf -- "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
 
-          # Get bastion IP from Terraform output
-          cd ../terraform/dev
-          BASTION_IP=$(terraform output -raw bastion_public_ip 2>&1)
+          BASTION_IP="${{ steps.bastion.outputs.bastion_ip }}"
           echo "Bastion IP: $BASTION_IP"
-
-          if [ -z "$BASTION_IP" ]; then
-            echo "ERROR: Could not retrieve bastion IP from Terraform output"
-            exit 1
-          fi
-
-          cd ../../ansible
 
           echo "Waiting for SSH on Bastion..."
           sleep 30
 
-          # Test bastion SSH connectivity before running Ansible
           echo "Testing bastion SSH..."
           ssh -i /tmp/ssh_key.pem \
             -o StrictHostKeyChecking=no \
@@ -81,7 +82,6 @@ jobs:
               exit 1
             }
 
-          # Write SSH config for ProxyJump
           mkdir -p ~/.ssh
           cat > ~/.ssh/config << EOF
           Host bastion
