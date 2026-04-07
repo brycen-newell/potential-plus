@@ -51,13 +51,15 @@ jobs:
           terraform_version: 1.2.0
           terraform_wrapper: false
 
-      - name: Get Bastion IP
-        id: bastion
+      - name: Terraform Apply
+        id: apply
         working-directory: ./terraform/dev
         run: |
-          BASTION_IP=$(terraform output -raw bastion_public_ip)
-          echo "Bastion IP: $BASTION_IP"
-          echo "bastion_ip=$BASTION_IP" >> GITHUB_OUTPUT
+          terraform init
+          terraform apply -auto-approve \
+            -var="runner_ip=${{ steps.runner_ip.outputs.ip }}" \
+            -var="ssh_public_key=${{ secrets.AWS_SSH_PUBLIC_KEY }}"
+          echo "bastion_ip=$(terraform output -raw bastion_public_ip)" >> $GITHUB_OUTPUT
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
